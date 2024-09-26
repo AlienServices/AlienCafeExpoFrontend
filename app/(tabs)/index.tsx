@@ -1,70 +1,142 @@
-import { Image, StyleSheet, Platform } from 'react-native';
+import React, { useContext, useRef, useState } from "react";
+import {
+  View,
+  Text,
+  Button,
+  TouchableOpacity,
+  StyleSheet,
+  Image,
+} from "react-native";
+import { useNavigation } from "@react-navigation/native";
+// import { supabase } from "../../components/";
+// import alien from "../../assets/alien.png"; // Replace with the path to your image asset
+// import AllPosts from "../components/AllPosts";
+import { MyContext } from "../../components/providers/postProvider";
+import Swiper from "react-native-swiper";
+// import Category from "../components/categories/Category";
 
-import { HelloWave } from '@/components/HelloWave';
-import ParallaxScrollView from '@/components/ParallaxScrollView';
-import { ThemedText } from '@/components/ThemedText';
-import { ThemedView } from '@/components/ThemedView';
+const Tab3 = () => {
+  const { myInfo, setMyInfo } = useContext(MyContext);
+  const navigation = useNavigation();
+  const [categories, setCategories] = useState([
+    "Aliens",
+    "Vaccines",
+    "Government",
+    "Space",
+    "9/11",
+    "Covid",
+    "Israel",
+  ]);
+  const [currentCategory, setCurrentCategory] = useState(categories[0]);
 
-export default function HomeScreen() {
+  const handleLogout = async () => {
+    console.log("hitting logout in tab 3");
+    try {
+      const { error } = await supabase.auth.signOut();
+      if (error) {
+        console.log("Logout error:", error);
+      } else {
+        localStorage.removeItem("user");
+        setMyInfo({
+          id: "",
+          content: "",
+          likes: [],
+          email: "",
+          bio: "",
+          username: "",
+          following: [],
+          followers: [],
+        });
+        // navigation.navigate("Tab1");
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-      headerImage={
-        <Image
-          source={require('@/assets/images/partial-react-logo.png')}
-          style={styles.reactLogo}
-        />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Welcome!</ThemedText>
-        <HelloWave />
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 1: Try it</ThemedText>
-        <ThemedText>
-          Edit <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> to see changes.
-          Press{' '}
-          <ThemedText type="defaultSemiBold">
-            {Platform.select({ ios: 'cmd + d', android: 'cmd + m' })}
-          </ThemedText>{' '}
-          to open developer tools.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 2: Explore</ThemedText>
-        <ThemedText>
-          Tap the Explore tab to learn more about what's included in this starter app.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-        <ThemedText>
-          When you're ready, run{' '}
-          <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText> to get a fresh{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> directory. This will move the current{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> to{' '}
-          <ThemedText type="defaultSemiBold">app-example</ThemedText>.
-        </ThemedText>
-      </ThemedView>
-    </ParallaxScrollView>
+    <View style={styles.container}>
+      <View style={styles.menuHeader}>
+        {/* <Text style={styles.title}>@{myInfo?.username}</Text> */}
+        <View style={styles.buttonContainer}>
+          {/* <Button title="Logout" onPress={handleLogout} /> */}
+        </View>
+      </View>
+      <View style={styles.header}>
+        <TouchableOpacity style={styles.imageContainer}>
+          {/* <Image source={alien} style={styles.image} /> */}
+        </TouchableOpacity>
+      </View>
+      <View style={styles.middle}>
+        <Text style={styles.categoryTitle}>{currentCategory}</Text>
+      </View>
+      <Swiper
+        showsPagination
+        loop={false}
+        onIndexChanged={(index) => setCurrentCategory(categories[index])}
+        style={styles.swiper}
+      >
+        {categories.map((category, index) => (
+          <View key={index} style={styles.slide}>
+            {/* <Category category={category} /> */}
+          </View>
+        ))}
+      </Swiper>
+    </View>
   );
-}
+};
 
 const styles = StyleSheet.create({
-  titleContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
+  container: {
+    flex: 1,
+    backgroundColor: "#fff",
   },
-  stepContainer: {
-    gap: 8,
-    marginBottom: 8,
+  menuHeader: {
+    padding: 20,
+    borderBottomWidth: 1,
+    borderBottomColor: "#ccc",
+    alignItems: "center",
   },
-  reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
-    position: 'absolute',
+  title: {
+    fontSize: 18,
+    fontWeight: "bold",
+  },
+  buttonContainer: {
+    marginTop: 10,
+  },
+  header: {
+    flexDirection: "row",
+    justifyContent: "center",
+    padding: 20,
+    borderBottomWidth: 1,
+    borderBottomColor: "#ccc",
+  },
+  imageContainer: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    overflow: "hidden",
+  },
+  image: {
+    width: "100%",
+    height: "100%",
+  },
+  middle: {
+    alignItems: "center",
+    marginVertical: 20,
+  },
+  categoryTitle: {
+    fontSize: 24,
+    fontWeight: "bold",
+  },
+  swiper: {
+    flex: 1,
+  },
+  slide: {
+    justifyContent: "center",
+    alignItems: "center",
+    padding: 20,
   },
 });
+
+export default Tab3;
